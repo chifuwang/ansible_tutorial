@@ -1,0 +1,28 @@
+---
+- name: setup webserver
+  hosts: all
+  become: true
+  tasks:
+    - name: Remove httpd 
+      ansible.builtin.yum:
+        name: httpd
+        state: absent 
+    - name: change firewall
+      ansible.posix.firewalld:
+        service: http
+        state: disabled
+        immediate: true
+        permanent: true
+    - name: Remove php
+      ansible.builtin.yum:
+        name:
+        - php
+        - php-common
+        - php-cli
+        - php-gd
+        - php-curl
+        - php-mysqlnd
+        - php-fpm
+        - php-mysqli
+        state: absent
+        

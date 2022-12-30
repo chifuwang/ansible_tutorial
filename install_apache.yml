@@ -1,0 +1,41 @@
+---
+- name: setup webserver
+  hosts: all
+  become: true
+  tasks:
+    - name: update repository index
+      ansible.builtin.yum:
+        update_cache: yes            
+    - name: httpd installed
+      ansible.builtin.yum:
+        name: httpd
+        state: latest
+    - name: custom index.html
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: |
+                    Custom Web Page
+    - name: httpd service enabled
+      ansible.builtin.service:
+        name: httpd
+        enabled: true
+        state: started
+    - name: open firewall
+      ansible.posix.firewalld:
+        service: http
+        state: enabled
+        immediate: true
+        permanent: true
+    - name: Install php
+      ansible.builtin.yum:
+        name:
+        - php
+        - php-common
+        - php-cli
+        - php-gd
+        - php-curl
+        - php-mysqlnd
+        - php-fpm
+        - php-mysqli
+        state: latest
+        
