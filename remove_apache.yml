@@ -3,11 +3,6 @@
   hosts: all
   become: true
   tasks:
-    - name: Remove httpd 
-      ansible.builtin.yum:
-        name: httpd
-        state: absent
-      when: ansible_distribution in ['CentOS', 'RedHat'] 
     - name: change firewall
       ansible.posix.firewalld:
         service: http
@@ -15,17 +10,19 @@
         immediate: true
         permanent: true
       when: ansible_distribution in ['CentOS', 'RedHat']
-    - name: Remove php
+
+    - name: Remove httpd and php
       ansible.builtin.yum:
         name:
-        - php
-        - php-common
-        - php-cli
-        - php-gd
-        - php-curl
-        - php-mysqlnd
-        - php-fpm
-        - php-mysqli
+          - httpd
+          - php
+          - php-common
+          - php-cli
+          - php-gd
+          - php-curl
+          - php-mysqlnd
+          - php-fpm
+          - php-mysqli
         state: absent
       when: ansible_distribution in ['CentOS', 'RedHat']
         
