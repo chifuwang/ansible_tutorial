@@ -5,27 +5,32 @@
   tasks:
     - name: update repository index
       ansible.builtin.yum:
-        update_cache: yes            
+        update_cache: yes           
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' 
     - name: httpd installed
       ansible.builtin.yum:
         name: httpd
         state: latest
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' 
     - name: custom index.html
       ansible.builtin.copy:
         dest: /var/www/html/index.html
         content: |
                     Custom Web Page
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
     - name: httpd service enabled
       ansible.builtin.service:
         name: httpd
         enabled: true
         state: started
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
     - name: open firewall
       ansible.posix.firewalld:
         service: http
         state: enabled
         immediate: true
         permanent: true
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
     - name: Install php
       ansible.builtin.yum:
         name:
@@ -38,4 +43,5 @@
         - php-fpm
         - php-mysqli
         state: latest
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' 
         

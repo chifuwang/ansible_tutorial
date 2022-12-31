@@ -6,13 +6,15 @@
     - name: Remove httpd 
       ansible.builtin.yum:
         name: httpd
-        state: absent 
+        state: absent
+      when: ansible_distribution in ['CentOS', 'RedHat'] 
     - name: change firewall
       ansible.posix.firewalld:
         service: http
         state: disabled
         immediate: true
         permanent: true
+      when: ansible_distribution in ['CentOS', 'RedHat']
     - name: Remove php
       ansible.builtin.yum:
         name:
@@ -25,4 +27,5 @@
         - php-fpm
         - php-mysqli
         state: absent
+      when: ansible_distribution in ['CentOS', 'RedHat']
         
