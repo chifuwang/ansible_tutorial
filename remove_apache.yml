@@ -1,9 +1,9 @@
 ---
-- name: setup webserver
-  hosts: all
+- name: remove webserver
+  hosts: web_server 
   become: true
   tasks:
-    - name: change firewall
+    - name: disable firewall
       ansible.posix.firewalld:
         service: http
         state: disabled
@@ -25,4 +25,28 @@
           - php-mysqli
         state: absent
       when: ansible_distribution in ['CentOS', 'RedHat']
+
+- name: remove database server
+  hosts: db_server
+  become: true
+  tasks:
+
+    - name: remove mariadb-server
+      ansible.builtin.yum:
+        name: mariadb-server
+        state: absent
+      when: ansible_distribution in ["CentOS", "RedHat"]
+
+
+- name: remove file server
+  hosts: file_server
+  become: true
+  tasks:
+
+    - name: remove samba
+      ansible.builtin.yum:
+        name: samba
+        state: absent
+      when: ansible_distribution in ["CentOS", "RedHat"]
+    
         

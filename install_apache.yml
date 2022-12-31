@@ -1,9 +1,24 @@
 ---
-- name: setup webserver
+
+- name: update servers
   hosts: all
   become: true
+  pre_tasks:
+
+  - name: install update
+    tags: always
+    ansible.builtin.yum:
+      update_only: yes
+      update_cache: yes 
+    when: ansible_distribution in ["CentOS", "RedHat"]
+
+- name: setup webserver
+  hosts: web_server 
+  become: true
   tasks:
+
     - name: Install httpd and  php
+      tags: apache,httpd
       ansible.builtin.yum:
         name:
           - httpd
@@ -16,17 +31,18 @@
           - php-fpm
           - php-mysqli
         state: latest
-        update_cache: yes
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
 
     - name: custom index.html
+      tags: apache,httpd
       ansible.builtin.copy:
         dest: /var/www/html/index.html
         content: |
                     Custom Web Page
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
 
-    - name: httpd service enabled
+    - name: start httpd service
+      tags: apache,httpd 
       ansible.builtin.service:
         name: httpd
         enabled: true
@@ -34,10 +50,45 @@
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
 
     - name: open firewall
+      tags: apache,httpd
       ansible.posix.firewalld:
         service: http
         state: enabled
         immediate: true
         permanent: true
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
-        
+
+
+- name: install database server
+  hosts: db_server
+  become: true
+  tasks:
+  
+  - name: install mariadb package
+    tags: mariadb
+    dnf:
+      name: mariadb-server
+      state: latest
+    when: ansible_distribution in ["CentOS", "RedHat"]
+
+  - name: enable mariadb
+    tags: mariadb
+    service: 
+      name: mariadb
+      enabled: true
+      state: started 
+    when: ansible_distribution in ["CentOS", "RedHat"]
+
+
+- name: install file server
+  hosts: file_server
+  become: true
+  tasks:
+
+  - name: install samba package
+    tags: samba
+    package:
+      name: samba
+      state: latest
+  
+
